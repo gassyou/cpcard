@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html ng-app="EstimatingMeeting">
+<head>
+	<meta charset="UTF-8">
+	<title>Project CP Estimating</title>
+	<link href="CSS/bootstrap.min.css" rel="stylesheet">
+	<link href="CSS/CpStyle.css" rel="stylesheet">
+	<script src="JS/lib/jquery.js"></script>
+	<script src="JS/lib/bootstrap.min.js"></script>
+	<script src="JS/lib/angular.min.js"></script>
+	<script src="JS/lib/angular-websocket.min.js"></script>
+	<script src="JS/lib/angular-sanitize.min.js"></script>
+	<script src="JS/lib/angular-animate.min.js"></script>
+	<script src="JS/lib/ui-bootstrap-tpls.min.js"></script>
+	<script src="JS/lib/json3.min.js"></script>
+	<script src="JS/EstimatingMeetingService.js"></script>
+	<script src="JS/EstimatingMeetingController.js"></script>
+	<LINK REL="SHORTCUT ICON" HREF="res/cpcardicon.jpg"> 
+</head>
+<body ng-controller="EstimatingMeetingController">
+	<div class="container">
+		<div class="row row-offcanvas row-offcanvas-right">
+		
+			<div ng-class="showErrorPanel(showErrorMsg)" role="alert">
+				<button type="button" class="close" ng-click="showErrorMsg = 'hidden'" ><span aria-hidden="true">&times;</span></button>
+				<strong>{{errorMsg}}</strong>
+			</div>
+
+			<div class="col-xs-12 col-sm-8">
+				<h1 class="text-center text-info">{{projectName}} - CP Estimating</h1>
+				<div class="panel panel-info" >
+					<div class="body"  style="padding:20px 50px;">
+						<div class="row ">
+							<label class="col-md-2 " style="margin-top:5px;">Backlog ID:</label>
+							<label class="col-md-1" id="backlogId" style="margin-top:5px;">{{backlogID}}</label>
+							<div class="col-md-2">
+								<button class="btn btn-default btn-sm {{showWhenHost}}" type="button" ng-click="backlogIDReduction()">&laquo;</button>
+								<button class="btn btn-default btn-sm {{showWhenHost}}" type="button" ng-click="backlogIDPlus()">&raquo;</button>
+							</div>
+							<div class="input-group input-group-sm col-md-2  {{showWhenHost}}">
+								<input type="tel" min="1" class="form-control"   ng-model="backlogID " >
+								<span class="input-group-btn">
+									<button class="btn btn-default" type="button" ng-click="gotoBacklogID()" >Go</button>
+								</span>
+							</div>
+						</div>
+						<div class="row ">
+							<label class="col-md-2 " style="margin-top:5px;" >CP Value:</label>
+							<div class="col-md-7" style="margin-top:5px;">
+								<div class="btn-group">
+								  <label ng-repeat="cpValue in [1,2,3,5,8,13,21,34]">
+								    <input type="radio" name="myTestRadio" ng-model="$parent.selectedCpValue" value="{{cpValue}}"/>&nbsp;&nbsp;{{cpValue}}&nbsp;&nbsp;&nbsp;
+								  </label>
+								</div>
+							</div>
+						
+							<div class="col-md-3"> <button type="submit" class="btn btn-sm btn-primary " ng-click="submitCP()">Submit</button></div>
+						</div>
+					</div>
+				</div>
+				<div class="row">					
+					<div class="col-sm-6 col-md-4 col-lg-3 "  ng-repeat="x in votes">
+						<div class="thumbnail {{x.voteStyle}}"><p class="bg-info text-center {{x.nameHidden}}" >{{x.name}}</p><h1 class="text-center">{{x.cp}}</h1></div>
+					</div>
+				</div>
+			</div>		
+			<div class="col-xs-12 col-sm-4">
+				<div class="panel panel-info" style="margin-top:70px;">
+					<div class="panel-heading">Project Meeting & Members</div>
+					<div class="body" style="padding:10px;">
+						<div class="{{joinMeetingPanelHidden}}">
+							<div class="dropdown"  style="margin-top:5px;">
+								<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+									{{selectedProjectFromList}}
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu4">
+									<li><p> </p></li>
+									<li role="presentation"><a role="menuitem" tabindex="-1" href="#" ng-repeat="x in projects" ng-click="selectAMeeting(x)">{{x}}</a></li>
+									<li role="presentation" class="divider"></li>
+									<li role="presentation"><a role="menuitem" tabindex="-1" href="#" ng-click="hostMeeting()">Host Meeting</a></li>
+								</ul>	
+							</div>
+							<div class="input-group {{showWhenHost}}"> 
+								<span class="input-group-addon" id="sizing-addon2">@</span>
+								<input type="text" class="form-control" placeholder="Project Name" aria-describedby="sizing-addon2" ng-model="projectName" required>
+							</div>
+							<div class="input-group" style="margin-bottom:5px;">
+								<input type="text" class="form-control" placeholder="Your Name" aria-label="..." required ng-model="memberName">
+						    	<span class="input-group-btn">
+	        						<button class="btn btn-default" type="button" ng-click="JoinProject()">Join</button>
+	      						</span>
+							</div>
+						</div>
+						<ul class="list-group"  style="margin-top:0px;">
+							<li class="list-group-item" ng-repeat="x in members">{{x}}<strong ng-class="isMe(x)"> (Me)</strong></li>
+						</ul>
+						<button type="button" class="btn btn-warning " aria-expanded="false"  style="width:100%;" ng-click="exitProjectConfirm()">Exit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script type="text/ng-template" id="T_dialogForm">
+		<div class="modal-header">
+			<button id="close" type="button" class="close" aria-hidden="true" ng-click="$dismiss()">
+				&times;
+			</button>
+			<h4 class="modal-title" id="myModalLabel"> Confirmation</h4>
+		</div>
+		<div class="modal-body" ng-bind-html="msg" ></div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+			<button type="button" class="btn btn-primary " ng-click="exitProject();$dismiss()">Just do it</button>
+		</div>
+	</script>
+</body>
+</html>

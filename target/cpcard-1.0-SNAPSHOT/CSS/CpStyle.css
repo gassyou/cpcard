@@ -1,0 +1,12 @@
+.thumbnail{
+	min-height: 99px;
+}
+
+.readyVote{
+	background-color: lightgray;
+	color: gray;
+}
+.finishVote{
+	background-color: lightblue;
+	color: white;
+}
