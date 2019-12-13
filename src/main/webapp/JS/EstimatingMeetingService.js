@@ -4,7 +4,8 @@ angular.module('MeetingService', [
 ])
 .service('EstimatingMeetingService', function($websocket) {
 
-	var ws = $websocket('ws://mars-0822-cpcard.daoapp.io/cpcard/meeting');
+//	var ws = $websocket('ws://mars-0822-cpcard.daoapp.io/cpcard/meeting');
+var ws = $websocket('ws://localhost:8080/cpcard/meeting');
   this.init = function(){
 	  var self = this;
 	  ws.onMessage(function(event) {
